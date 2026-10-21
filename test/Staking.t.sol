@@ -20,7 +20,7 @@ contract StakingTest is Test {
     function setUp() public {
         vm.warp(START);
         st = new BcusStaking();
-        em = new MortalityEmission(address(0x0A), address(st), HOLDER, 1_000_000e18);
+        em = new MortalityEmission(address(0x0A), address(st), address(0), HOLDER, 1_000_000e18);
         st.bind(address(em));
         token = em.token();
         base = em.BASE_EMISSION();
@@ -128,16 +128,28 @@ contract StakingTest is Test {
         assertSolvent();
     }
 
-    function testRewardsWithoutStakersAreKeptForLater() public {
+    function testRewardsWithoutStakersAreBurned() public {
         vm.warp(START + 1 weeks);
         st.pull();                                       // niemand stakt: Strom läuft ins Leere
         vm.warp(START + 1 weeks + 7 days);
-        stake(ALICE, 100e18);
-        assertNear(st.undistributed(), base, 1e12);
+        stake(ALICE, 100e18);                            // verbrennt, was ohne Staker geflossen ist
+        assertNear(st.burned(), base, 1e12);
+        assertNear(token.balanceOf(st.BURN()), base, 1e12);
         vm.warp(START + 3 weeks);
-        st.pull();                                       // Rest aus Woche 1 fließt jetzt mit ein
+        st.pull();
         vm.warp(START + 4 weeks);
-        assertNear(claim(ALICE), 3 * base, base / 100);  // Woche 1 (aufgehoben) + 2 + 3
+        assertNear(claim(ALICE), 2 * base, base / 100);  // nur Woche 2 + 3, Woche 1 ist weg
+        assertSolvent();
+    }
+
+    function testStakerJoiningMidStreamGetsOnlyTheRest() public {
+        vm.warp(START + 1 weeks);
+        st.pull();
+        vm.warp(START + 1 weeks + 3.5 days);
+        stake(ALICE, 100e18);
+        vm.warp(START + 1 weeks + 7 days);
+        assertNear(claim(ALICE), base / 2, 1e12);        // zweite Hälfte der Woche
+        assertNear(st.burned(), base / 2, 1e12);         // erste Hälfte verbrannt
         assertSolvent();
     }
 

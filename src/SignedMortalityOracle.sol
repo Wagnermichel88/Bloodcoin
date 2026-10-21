@@ -6,6 +6,7 @@ import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 interface IMortalityEmission {
     function report(uint256 weekEnding, uint256 recentDeaths, uint256 baselineDeaths) external;
+    function resetFactor() external;
 }
 
 /// @title CDC-Sterbezahlen, signiert vom eigenen Server (Plan B zu Chainlink CRE)
@@ -23,8 +24,9 @@ interface IMortalityEmission {
 ///         vergleichbar ist.
 ///
 ///         Kein Besitzer. `signer` ist unveränderlich. Bei Schlüsselverlust oder -diebstahl wird
-///         der Melder mit `retire` endgültig abgeschaltet; die Emission läuft dann mit dem zuletzt
-///         gemeldeten Faktor weiter.
+///         der Melder mit `retire` endgültig abgeschaltet; dabei geht der Faktor auf 1,0 zurück, und
+///         die Emission läuft ohne Sterbe-Anpassung weiter. So kann ein Dieb einen verschobenen
+///         Faktor nicht durch Abschalten festschreiben.
 contract SignedMortalityOracle is EIP712 {
     bytes32 public constant REPORT_TYPEHASH =
         keccak256("MortalityReport(uint256 weekEnding,uint256 recentDeaths,uint256 baselineDeaths)");
@@ -93,10 +95,13 @@ contract SignedMortalityOracle is EIP712 {
         emit Reported(weekEnding, recentDeaths, baselineDeaths);
     }
 
-    /// @notice Schaltet den Melder endgültig ab. Braucht eine Signatur des Schlüssels.
+    /// @notice Schaltet den Melder endgültig ab und setzt den Faktor auf 1,0 zurück. Braucht eine
+    ///         Signatur des Schlüssels.
     function retire(bytes calldata signature) external {
+        if (retired) revert IsRetired();
         if (ECDSA.recover(retireDigest(), signature) != signer) revert BadSignature();
         retired = true;
+        if (address(emission) != address(0)) emission.resetFactor();
         emit Retired();
     }
 }

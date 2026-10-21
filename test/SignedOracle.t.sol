@@ -17,7 +17,7 @@ contract SignedOracleTest is Test {
     function setUp() public {
         vm.warp(START);
         oracle = new SignedMortalityOracle(vm.addr(KEY));
-        em = new MortalityEmission(address(oracle), address(0xBEEF), address(0xCAFE), 1_000_000e18);
+        em = new MortalityEmission(address(oracle), address(0xBEEF), address(0), address(0xCAFE), 1_000_000e18);
         oracle.bind(address(em));
     }
 
@@ -59,7 +59,7 @@ contract SignedOracleTest is Test {
     function testSignatureBoundToContract() public {
         // Gleicher Schlüssel, zweiter Contract: die Signatur für den ersten gilt dort nicht.
         SignedMortalityOracle other = new SignedMortalityOracle(vm.addr(KEY));
-        MortalityEmission em2 = new MortalityEmission(address(other), address(0xBEEF), address(0xCAFE), 0);
+        MortalityEmission em2 = new MortalityEmission(address(other), address(0xBEEF), address(0), address(0xCAFE), 0);
         other.bind(address(em2));
         bytes memory s = sig(KEY, oracle.reportDigest(SAT, 252_000, 240_000));
         vm.expectRevert(SignedMortalityOracle.BadSignature.selector);
@@ -117,6 +117,37 @@ contract SignedOracleTest is Test {
         bytes memory s = sig(KEY, oracle.reportDigest(SAT, 252_000, 240_000));
         vm.expectRevert(SignedMortalityOracle.IsRetired.selector);
         oracle.submit(SAT, 252_000, 240_000, s);
+    }
+
+    function testRetireResetsFactor() public {
+        // Ein Dieb des Schlüssels drückt den Faktor mit erfundenen Zahlen nach unten ...
+        submit(SAT, 400_000, 240_000);
+        submit(SAT + 1 weeks, 400_000, 240_000);
+        submit(SAT + 2 weeks, 400_000, 240_000);
+        assertEq(em.factorMilli(), 850);
+        // ... das Abschalten schreibt das aber nicht fest, sondern setzt auf 1,0 zurück.
+        oracle.retire(sig(KEY, oracle.retireDigest()));
+        assertEq(em.factorMilli(), 1000);
+        assertEq(em.targetMilli(), 1000);
+    }
+
+    function testRetireSettlesOldEpochsWithOldFactor() public {
+        submit(SAT, 400_000, 240_000);                   // Faktor 0,95
+        vm.warp(START + 2 weeks);
+        oracle.retire(sig(KEY, oracle.retireDigest()));
+        assertEq(em.pending(), 2 * (em.BASE_EMISSION() * 950 / 1000));
+    }
+
+    function testRetireOnlyOnce() public {
+        bytes memory s = sig(KEY, oracle.retireDigest());
+        oracle.retire(s);
+        vm.expectRevert(SignedMortalityOracle.IsRetired.selector);
+        oracle.retire(s);
+    }
+
+    function testResetFactorOnlyOracle() public {
+        vm.expectRevert(MortalityEmission.OnlyOracle.selector);
+        em.resetFactor();
     }
 
     function testRetireNeedsKey() public {

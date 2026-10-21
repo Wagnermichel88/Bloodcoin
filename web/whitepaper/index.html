@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bloodcoin Whitepaper</title>
+<meta name="description" content="Bloodcoin whitepaper: a token whose issuance follows weekly mortality in the United States.">
+<link rel="icon" href="/favicon.png">
+
+<style>
+/* Layout: one academic column, numbered sections, figures and tables as the only set-off objects. White in every scheme, by request. */
+:root{
+  color-scheme:light;
+  --paper:#ffffff; --ink:#16130f; --soft:#5b5650; --rule:#dcd8d2; --tint:#f6f4f1; --blood:#7d1d1d;
+  --serif:Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);margin:0;font:17px/1.62 var(--serif);-webkit-text-size-adjust:100%}
+.doc{max-width:700px;margin:0 auto;padding-block:56px 88px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.title{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:26px}
+.kicker{font:600 12px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--blood);margin:0 0 14px}
+h1{font-size:40px;line-height:1.1;font-weight:normal;margin:0 0 10px;text-wrap:balance}
+.subtitle{font-size:20px;line-height:1.35;font-style:italic;margin:0 0 18px;color:var(--ink);text-wrap:balance}
+.byline{font:14px/1.6 var(--sans);color:var(--soft);margin:0;display:flex;flex-wrap:wrap;gap:4px 18px}
+.notice{font:14px/1.55 var(--sans);border:1px solid var(--ink);padding:14px 16px;margin:0 0 30px}
+.notice b{font-weight:600}
+.abstract{margin:0 0 30px;padding:0 0 0 0}
+.abstract h2{font:600 12px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:var(--soft)}
+.abstract p{font-size:16.5px;margin:0}
+h2{font-size:23px;font-weight:normal;margin:48px 0 12px;line-height:1.25;text-wrap:balance}
+h2 .n,h3 .n{color:var(--blood);font-variant-numeric:tabular-nums;margin-right:.45em}
+h3{font-size:18px;font-weight:bold;margin:26px 0 8px}
+p,ul,ol{margin:0 0 14px}
+ul,ol{padding-left:22px}
+li{margin:0 0 6px}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--blood);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--blood);outline-offset:2px}
+nav.toc{font:14.5px/1.5 var(--sans);margin:0 0 10px}
+nav.toc ol{columns:2;column-gap:32px;padding-left:24px;margin:0}
+nav.toc li{break-inside:avoid;margin:0 0 3px}
+nav.toc h2{font:600 12px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;color:var(--soft)}
+.eq{font-family:var(--serif);font-style:italic;font-size:17px;text-align:center;margin:16px 0 18px;padding:10px 8px;overflow-x:auto;white-space:nowrap}
+.eq .num{font-style:normal;color:var(--soft);font-size:14px;margin-left:14px}
+var{font-style:italic}
+figure{margin:24px 0 26px}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font:13.5px/1.5 var(--sans);color:var(--soft);margin-top:8px}
+figcaption b{color:var(--ink);font-weight:600}
+.wrap{overflow-x:auto;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;font:14.5px/1.45 var(--sans);font-variant-numeric:tabular-nums}
+caption{text-align:left;font:13.5px/1.5 var(--sans);color:var(--soft);caption-side:bottom;padding-top:8px}
+th,td{text-align:left;vertical-align:top;padding:7px 12px 7px 0;border-bottom:1px solid var(--rule)}
+thead th{font-weight:600;border-bottom:1px solid var(--ink)}
+td.r,th.r{text-align:right}
+td:last-child,th:last-child{padding-right:0}
+code{font:13.5px var(--mono);word-break:break-all}
+pre{font:13.5px/1.55 var(--mono);background:var(--tint);padding:14px 16px;overflow-x:auto;margin:0 0 18px;white-space:pre}
+.grid{stroke:var(--rule);stroke-width:1}
+.ax{font:12px var(--sans);fill:var(--soft)}
+.lab{font:12px var(--sans);fill:var(--ink)}
+.l1{fill:none;stroke:var(--blood);stroke-width:2.4}
+.l2{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-dasharray:5 4}
+.l3{fill:none;stroke:var(--soft);stroke-width:1.6}
+.box{fill:var(--paper);stroke:var(--ink);stroke-width:1.2}
+.box2{fill:var(--tint);stroke:var(--ink);stroke-width:1.2}
+.arr{stroke:var(--ink);stroke-width:1.2;fill:none}
+.ah{fill:var(--ink)}
+.bt{font:600 13px var(--sans);fill:var(--ink)}
+.bs{font:12px var(--sans);fill:var(--soft)}
+.small{font:14px/1.55 var(--sans);color:var(--soft)}
+.refs{font-size:15px;padding-left:28px}
+.refs li{margin:0 0 8px}
+footer{border-top:1px solid var(--rule);margin-top:48px;padding-top:16px;font:13.5px/1.6 var(--sans);color:var(--soft)}
+@media (max-width:560px){body{font-size:16px}h1{font-size:31px}.subtitle{font-size:18px}nav.toc ol{columns:1}.doc{padding-block:36px 64px}}
+@media print{.doc{padding:0;max-width:none}a{text-decoration:none}h2,h3{break-after:avoid}figure,table{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+
+<article class="doc">
+<header class="title">
+  <p class="kicker">Whitepaper · Version 1.0 draft</p>
+  <h1>Bloodcoin</h1>
+  <p class="subtitle">A token whose issuance follows weekly mortality in the United States</p>
+  <p class="byline"><span>Michel Wagner</span><span>Lyss, Switzerland</span><span>21 October 2026</span><span>Status: test network only</span></p>
+</header>
+
+<div class="notice"><b>Important notice.</b> Bloodcoin is still in development. BCUS is not yet available for purchase. This document is not an offer, a prospectus or investment advice, and it makes no promise of value, price or return. Bloodcoin is not offered to persons in the United States. The legal notice in section 15 applies to the whole document.</div>
+
+<section class="abstract" aria-labelledby="abs">
+  <h2 id="abs">Abstract</h2>
+  <p>Bloodcoin (ticker BCUS) is an ERC-20 token on Base whose weekly issuance is multiplied by a factor derived from the number of deaths in the United States published by the Centers for Disease Control and Prevention. A signed oracle writes each weekly figure to the ledger, where it stays as a permanent public record. Issuance follows a Bitcoin-like halving schedule with a hard cap of 21 million tokens. Half of each week's issuance goes to proof-of-work miners and half to stakers, so anyone can obtain BCUS without the founder's involvement. The founder allocation of one million tokens vests linearly over ten years. All contracts are immutable and have no owner. This paper specifies the mechanism, its parameters and its limits, and states openly where trust is still required.</p>
+</section>
+
+<nav class="toc" aria-labelledby="toc">
+  <h2 id="toc">Contents</h2>
+  <ol>
+    <li><a href="#s1">Introduction</a></li>
+    <li><a href="#s2">System overview</a></li>
+    <li><a href="#s3">The mortality oracle</a></li>
+    <li><a href="#s4">Issuance schedule</a></li>
+    <li><a href="#s5">Mining</a></li>
+    <li><a href="#s6">Staking</a></li>
+    <li><a href="#s7">Founder allocation</a></li>
+    <li><a href="#s8">Control and trust</a></li>
+    <li><a href="#s9">Security analysis</a></li>
+    <li><a href="#s10">Ethics of the design</a></li>
+    <li><a href="#s11">Related work</a></li>
+    <li><a href="#s12">The Bloodcoin chain</a></li>
+    <li><a href="#s13">Environmental impact</a></li>
+    <li><a href="#s14">Risks</a></li>
+    <li><a href="#s15">Legal notice and regulatory status</a></li>
+    <li><a href="#s16">Conditions before mainnet</a></li>
+    <li><a href="#s17">Deployments</a></li>
+    <li><a href="#s18">Publisher, contact and data protection</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="n">1</span>Introduction</h2>
+<p>Most cryptocurrencies issue new units on a schedule that ignores the world outside the network. Bitcoin halves its block reward every 210,000 blocks regardless of what happens elsewhere [1]. Elastic-supply tokens such as Ampleforth react to the outside world, but only to their own market price [4].</p>
+<p>Bloodcoin connects issuance to a measurement that has nothing to do with markets: the weekly count of deaths in the United States. The figure is among the most carefully collected public statistics in the world, it is published openly, and it is revised in a documented way. Every week the count is written to the ledger and stays there. Over decades the chain becomes a chronicle of mortality that anyone can read and verify.</p>
+<p>The project is first an artwork and a public record. It is also designed so that it can work as a currency that runs without its founder: no one owns the contracts, no one can change the rules, and new tokens reach the public through mining and staking rather than through sales.</p>
+
+<h2 id="s2"><span class="n">2</span>System overview</h2>
+<p>BCUS consists of six contracts on Base, an Ethereum layer-2 network. Figure 1 shows how a weekly death count becomes new tokens.</p>
+<figure>
+<svg viewBox="0 0 640 250" role="img" aria-label="Flow from CDC data through the oracle and emission contract to mining and staking">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+  <rect x="8" y="20" width="132" height="58" class="box"/><text x="74" y="45" class="bt" text-anchor="middle">CDC data</text><text x="74" y="63" class="bs" text-anchor="middle">weekly US deaths</text>
+  <rect x="172" y="20" width="132" height="58" class="box"/><text x="238" y="45" class="bt" text-anchor="middle">Report script</text><text x="238" y="63" class="bs" text-anchor="middle">signs every Monday</text>
+  <rect x="336" y="20" width="132" height="58" class="box2"/><text x="402" y="45" class="bt" text-anchor="middle">Oracle</text><text x="402" y="63" class="bs" text-anchor="middle">checks, sets factor</text>
+  <rect x="500" y="20" width="132" height="58" class="box2"/><text x="566" y="45" class="bt" text-anchor="middle">Emission</text><text x="566" y="63" class="bs" text-anchor="middle">mints every week</text>
+  <rect x="336" y="160" width="132" height="58" class="box2"/><text x="402" y="185" class="bt" text-anchor="middle">Mining · 50 %</text><text x="402" y="203" class="bs" text-anchor="middle">proof of work</text>
+  <rect x="500" y="160" width="132" height="58" class="box2"/><text x="566" y="185" class="bt" text-anchor="middle">Staking · 50 %</text><text x="566" y="203" class="bs" text-anchor="middle">streamed over 7 days</text>
+  <rect x="8" y="160" width="296" height="58" class="box"/><text x="156" y="185" class="bt" text-anchor="middle">FounderLock · 1,000,000 BCUS</text><text x="156" y="203" class="bs" text-anchor="middle">minted once, vests over 10 years</text>
+  <path d="M140,49 L170,49" class="arr" marker-end="url(#ah)"/>
+  <path d="M304,49 L334,49" class="arr" marker-end="url(#ah)"/>
+  <path d="M468,49 L498,49" class="arr" marker-end="url(#ah)"/>
+  <path d="M566,78 L566,158" class="arr" marker-end="url(#ah)"/>
+  <path d="M566,118 L402,118 L402,158" class="arr" marker-end="url(#ah)"/>
+  <text x="484" y="111" class="bs" text-anchor="middle">new BCUS</text>
+</svg>
+<figcaption><b>Figure 1.</b> Shaded boxes are immutable contracts on Base. The report script runs on the publisher's server and holds the oracle key. The token contract itself is omitted; only the emission contract can mint.</figcaption>
+</figure>
+<div class="wrap"><table>
+<thead><tr><th>Contract</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>BloodcoinToken</td><td>ERC-20 token [6], 18 decimals, hard cap 21,000,000 BCUS. No owner. Only MortalityEmission can mint.</td></tr>
+<tr><td>MortalityEmission</td><td>Mints each week's amount (section 4) and splits it between mining and staking.</td></tr>
+<tr><td>SignedMortalityOracle</td><td>Accepts weekly reports signed with the oracle key (EIP-712 [7]), checks them and sets the mortality factor.</td></tr>
+<tr><td>BcusMining</td><td>Pays out its share to anyone who submits a valid proof of work (section 5).</td></tr>
+<tr><td>BcusStaking</td><td>Streams its share to depositors over seven days (section 6).</td></tr>
+<tr><td>FounderLock</td><td>Holds the founder allocation and releases it linearly over ten years (section 7).</td></tr>
+</tbody></table></div>
+
+<h2 id="s3"><span class="n">3</span>The mortality oracle</h2>
+<h3><span class="n">3.1</span>Data</h3>
+<p>The oracle uses the weekly all-cause death counts for the United States from the CDC's public data portal [8]. Recent weeks are revised as late death certificates arrive, so the report only uses weeks that are at least eight weeks old.</p>
+<h3><span class="n">3.2</span>Target factor</h3>
+<p>Each report carries two numbers. <var>D</var> is the sum of deaths in the four most recent usable weeks. <var>D</var><sub>0</sub> is the baseline: the average of the same four calendar weeks in the three preceding years. The relative deviation in basis points is</p>
+<p class="eq">δ = 10,000 · (<var>D</var> − <var>D</var><sub>0</sub>) / <var>D</var><sub>0</sub><span class="num">(1)</span></p>
+<p>Deviations of up to ±300 basis points (3 %) are ignored. Beyond that, each further percent of excess mortality lowers the target factor by five percent, and each percent below the baseline raises it by the same amount. With factors written in thousandths:</p>
+<p class="eq"><var>t</var> = clamp( 1000 − 5 · sign(δ) · (|δ| − 300) / 10 ,  500 ,  1500 )<span class="num">(2)</span></p>
+<h3><span class="n">3.3</span>Step limit and checks</h3>
+<p>The factor <var>f</var> that the emission actually uses moves toward the target by at most 50 thousandths per report. A single report, correct or not, can therefore change weekly issuance by at most five percent, and it takes at least ten consecutive reports to move the factor from 1.0 to either limit. The contract rejects reports with <var>D</var> outside 80,000 to 1,000,000, and reports where <var>D</var> and <var>D</var><sub>0</sub> differ by more than a factor of two.</p>
+<h3><span class="n">3.4</span>Retirement</h3>
+<p>The oracle can be switched off permanently with a signed message. Retiring it resets the factor to exactly 1.0, so a stolen key cannot push the factor to an extreme and then freeze it there. After retirement the token keeps issuing on the plain halving schedule.</p>
+<h3><span class="n">3.5</span>Verification</h3>
+<p>Every report is published on the oracle page together with the raw CDC rows it was calculated from. A button on that page repeats the calculation in the reader's browser directly against the CDC portal. Anyone can therefore check each figure without trusting the publisher's server.</p>
+
+<h2 id="s4"><span class="n">4</span>Issuance schedule</h2>
+<p>Time is divided into weekly epochs <var>n</var> = 0, 1, 2, … starting at deployment. The base amount is <var>B</var> = 10,500,000 / 416 ≈ 25,240.38 BCUS per week, and it halves every 416 epochs, about every eight years. The amount minted for epoch <var>n</var> is</p>
+<p class="eq"><var>E</var><sub><var>n</var></sub> = <var>B</var> · 2<sup>−⌊<var>n</var> / 416⌋</sup> · <var>f</var><sub><var>n</var></sub> / 1000<span class="num">(3)</span></p>
+<p>where <var>f</var><sub><var>n</var></sub> is the factor in force during that epoch. Minting stops for good once total supply reaches 21,000,000. A factor below 1.0 means fewer tokens in that week; the difference is never made up later.</p>
+<div class="wrap"><table>
+<thead><tr><th>Period</th><th>Years</th><th class="r">BCUS per week</th><th class="r">Period total</th><th class="r">Supply at end</th></tr></thead>
+<tbody>
+<tr><td>Founder allocation</td><td>at deployment</td><td class="r">–</td><td class="r">1,000,000</td><td class="r">1,000,000</td></tr>
+<tr><td>1</td><td>0–8</td><td class="r">25,240.38</td><td class="r">10,500,000</td><td class="r">11,500,000</td></tr>
+<tr><td>2</td><td>8–16</td><td class="r">12,620.19</td><td class="r">5,250,000</td><td class="r">16,750,000</td></tr>
+<tr><td>3</td><td>16–24</td><td class="r">6,310.10</td><td class="r">2,625,000</td><td class="r">19,375,000</td></tr>
+<tr><td>4</td><td>24–32</td><td class="r">3,155.05</td><td class="r">1,312,500</td><td class="r">20,687,500</td></tr>
+<tr><td>5</td><td>32–36</td><td class="r">1,577.52</td><td class="r">312,500</td><td class="r">21,000,000</td></tr>
+</tbody>
+<caption>Table 1. Schedule at a constant factor of 1.0. The cap is reached in the fifth period, about 36 years after deployment.</caption>
+</table></div>
+<figure>
+<svg viewBox="0 0 640 300" role="img" aria-label="Cumulative BCUS supply over 40 years for constant mortality factors 0.75, 1.0 and 1.5"><line x1="64" x2="616" y1="260.0" y2="260.0" class="grid"/><text x="56" y="264.0" class="ax" text-anchor="end">0 M</text><line x1="64" x2="616" y1="225.1" y2="225.1" class="grid"/><text x="56" y="229.1" class="ax" text-anchor="end">3 M</text><line x1="64" x2="616" y1="190.3" y2="190.3" class="grid"/><text x="56" y="194.3" class="ax" text-anchor="end">6 M</text><line x1="64" x2="616" y1="155.4" y2="155.4" class="grid"/><text x="56" y="159.4" class="ax" text-anchor="end">9 M</text><line x1="64" x2="616" y1="120.6" y2="120.6" class="grid"/><text x="56" y="124.6" class="ax" text-anchor="end">12 M</text><line x1="64" x2="616" y1="85.7" y2="85.7" class="grid"/><text x="56" y="89.7" class="ax" text-anchor="end">15 M</text><line x1="64" x2="616" y1="50.9" y2="50.9" class="grid"/><text x="56" y="54.9" class="ax" text-anchor="end">18 M</text><line x1="64" x2="616" y1="16.0" y2="16.0" class="grid"/><text x="56" y="20.0" class="ax" text-anchor="end">21 M</text><line x1="64.0" x2="64.0" y1="16" y2="260" class="grid"/><text x="64.0" y="278" class="ax" text-anchor="middle">0</text><line x1="174.4" x2="174.4" y1="16" y2="260" class="grid"/><text x="174.4" y="278" class="ax" text-anchor="middle">8</text><line x1="284.8" x2="284.8" y1="16" y2="260" class="grid"/><text x="284.8" y="278" class="ax" text-anchor="middle">16</text><line x1="395.2" x2="395.2" y1="16" y2="260" class="grid"/><text x="395.2" y="278" class="ax" text-anchor="middle">24</text><line x1="505.6" x2="505.6" y1="16" y2="260" class="grid"/><text x="505.6" y="278" class="ax" text-anchor="middle">32</text><line x1="616.0" x2="616.0" y1="16" y2="260" class="grid"/><text x="616.0" y="278" class="ax" text-anchor="middle">40</text><text x="340.0" y="296" class="ax" text-anchor="middle">Years after deployment</text><path d="M64.0,248.4 L67.4,242.7 L70.9,236.9 L74.3,231.2 L77.8,225.5 L81.2,219.8 L84.6,214.1 L88.1,208.3 L91.5,202.6 L94.9,196.9 L98.4,191.2 L101.8,185.5 L105.3,179.8 L108.7,174.0 L112.1,168.3 L115.6,162.6 L119.0,156.9 L122.5,151.2 L125.9,145.4 L129.3,139.7 L132.8,134.0 L136.2,128.3 L139.6,122.6 L143.1,116.8 L146.5,111.1 L150.0,105.4 L153.4,99.7 L156.8,94.0 L160.3,88.3 L163.7,82.5 L167.1,76.8 L170.6,71.1 L174.0,65.4 L177.5,62.5 L180.9,59.7 L184.3,56.8 L187.8,53.9 L191.2,51.1 L194.7,48.2 L198.1,45.4 L201.5,42.5 L205.0,39.6 L208.4,36.8 L211.8,33.9 L215.3,31.1 L218.7,28.2 L222.2,25.3 L225.6,22.5 L229.0,19.6 L232.5,16.8 L235.9,16.0 L239.4,16.0 L242.8,16.0 L246.2,16.0 L249.7,16.0 L253.1,16.0 L256.5,16.0 L260.0,16.0 L263.4,16.0 L266.9,16.0 L270.3,16.0 L273.7,16.0 L277.2,16.0 L280.6,16.0 L284.0,16.0 L287.5,16.0 L290.9,16.0 L294.4,16.0 L297.8,16.0 L301.2,16.0 L304.7,16.0 L308.1,16.0 L311.6,16.0 L315.0,16.0 L318.4,16.0 L321.9,16.0 L325.3,16.0 L328.7,16.0 L332.2,16.0 L335.6,16.0 L339.1,16.0 L342.5,16.0 L345.9,16.0 L349.4,16.0 L352.8,16.0 L356.3,16.0 L359.7,16.0 L363.1,16.0 L366.6,16.0 L370.0,16.0 L373.4,16.0 L376.9,16.0 L380.3,16.0 L383.8,16.0 L387.2,16.0 L390.6,16.0 L394.1,16.0 L397.5,16.0 L400.9,16.0 L404.4,16.0 L407.8,16.0 L411.3,16.0 L414.7,16.0 L418.1,16.0 L421.6,16.0 L425.0,16.0 L428.5,16.0 L431.9,16.0 L435.3,16.0 L438.8,16.0 L442.2,16.0 L445.6,16.0 L449.1,16.0 L452.5,16.0 L456.0,16.0 L459.4,16.0 L462.8,16.0 L466.3,16.0 L469.7,16.0 L473.2,16.0 L476.6,16.0 L480.0,16.0 L483.5,16.0 L486.9,16.0 L490.3,16.0 L493.8,16.0 L497.2,16.0 L500.7,16.0 L504.1,16.0 L507.5,16.0 L511.0,16.0 L514.4,16.0 L517.9,16.0 L521.3,16.0 L524.7,16.0 L528.2,16.0 L531.6,16.0 L535.0,16.0 L538.5,16.0 L541.9,16.0 L545.4,16.0 L548.8,16.0 L552.2,16.0 L555.7,16.0 L559.1,16.0 L562.5,16.0 L566.0,16.0 L569.4,16.0 L572.9,16.0 L576.3,16.0 L579.7,16.0 L583.2,16.0 L586.6,16.0 L590.1,16.0 L593.5,16.0 L596.9,16.0 L600.4,16.0 L603.8,16.0 L607.2,16.0 L610.7,16.0 L614.1,16.0" class="l3"/><path d="M64.0,248.4 L67.4,244.6 L70.9,240.8 L74.3,236.9 L77.8,233.1 L81.2,229.3 L84.6,225.5 L88.1,221.7 L91.5,217.9 L94.9,214.1 L98.4,210.3 L101.8,206.4 L105.3,202.6 L108.7,198.8 L112.1,195.0 L115.6,191.2 L119.0,187.4 L122.5,183.6 L125.9,179.8 L129.3,175.9 L132.8,172.1 L136.2,168.3 L139.6,164.5 L143.1,160.7 L146.5,156.9 L150.0,153.1 L153.4,149.3 L156.8,145.4 L160.3,141.6 L163.7,137.8 L167.1,134.0 L170.6,130.2 L174.0,126.4 L177.5,124.5 L180.9,122.6 L184.3,120.7 L187.8,118.8 L191.2,116.8 L194.7,114.9 L198.1,113.0 L201.5,111.1 L205.0,109.2 L208.4,107.3 L211.8,105.4 L215.3,103.5 L218.7,101.6 L222.2,99.7 L225.6,97.8 L229.0,95.9 L232.5,94.0 L235.9,92.1 L239.4,90.2 L242.8,88.3 L246.2,86.3 L249.7,84.4 L253.1,82.5 L256.5,80.6 L260.0,78.7 L263.4,76.8 L266.9,74.9 L270.3,73.0 L273.7,71.1 L277.2,69.2 L280.6,67.3 L284.0,65.4 L287.5,64.4 L290.9,63.5 L294.4,62.5 L297.8,61.6 L301.2,60.6 L304.7,59.7 L308.1,58.7 L311.6,57.8 L315.0,56.8 L318.4,55.8 L321.9,54.9 L325.3,53.9 L328.7,53.0 L332.2,52.0 L335.6,51.1 L339.1,50.1 L342.5,49.2 L345.9,48.2 L349.4,47.3 L352.8,46.3 L356.3,45.4 L359.7,44.4 L363.1,43.5 L366.6,42.5 L370.0,41.6 L373.4,40.6 L376.9,39.6 L380.3,38.7 L383.8,37.7 L387.2,36.8 L390.6,35.8 L394.1,34.9 L397.5,34.4 L400.9,33.9 L404.4,33.5 L407.8,33.0 L411.3,32.5 L414.7,32.0 L418.1,31.5 L421.6,31.1 L425.0,30.6 L428.5,30.1 L431.9,29.6 L435.3,29.2 L438.8,28.7 L442.2,28.2 L445.6,27.7 L449.1,27.3 L452.5,26.8 L456.0,26.3 L459.4,25.8 L462.8,25.3 L466.3,24.9 L469.7,24.4 L473.2,23.9 L476.6,23.4 L480.0,23.0 L483.5,22.5 L486.9,22.0 L490.3,21.5 L493.8,21.1 L497.2,20.6 L500.7,20.1 L504.1,19.6 L507.5,19.4 L511.0,19.2 L514.4,18.9 L517.9,18.7 L521.3,18.4 L524.7,18.2 L528.2,18.0 L531.6,17.7 L535.0,17.5 L538.5,17.2 L541.9,17.0 L545.4,16.8 L548.8,16.5 L552.2,16.3 L555.7,16.1 L559.1,16.0 L562.5,16.0 L566.0,16.0 L569.4,16.0 L572.9,16.0 L576.3,16.0 L579.7,16.0 L583.2,16.0 L586.6,16.0 L590.1,16.0 L593.5,16.0 L596.9,16.0 L600.4,16.0 L603.8,16.0 L607.2,16.0 L610.7,16.0 L614.1,16.0" class="l1"/><path d="M64.0,248.4 L67.4,245.5 L70.9,242.7 L74.3,239.8 L77.8,236.9 L81.2,234.1 L84.6,231.2 L88.1,228.4 L91.5,225.5 L94.9,222.6 L98.4,219.8 L101.8,216.9 L105.3,214.1 L108.7,211.2 L112.1,208.3 L115.6,205.5 L119.0,202.6 L122.5,199.8 L125.9,196.9 L129.3,194.1 L132.8,191.2 L136.2,188.3 L139.6,185.5 L143.1,182.6 L146.5,179.8 L150.0,176.9 L153.4,174.0 L156.8,171.2 L160.3,168.3 L163.7,165.5 L167.1,162.6 L170.6,159.7 L174.0,156.9 L177.5,155.5 L180.9,154.0 L184.3,152.6 L187.8,151.2 L191.2,149.7 L194.7,148.3 L198.1,146.9 L201.5,145.4 L205.0,144.0 L208.4,142.6 L211.8,141.2 L215.3,139.7 L218.7,138.3 L222.2,136.9 L225.6,135.4 L229.0,134.0 L232.5,132.6 L235.9,131.1 L239.4,129.7 L242.8,128.3 L246.2,126.9 L249.7,125.4 L253.1,124.0 L256.5,122.6 L260.0,121.1 L263.4,119.7 L266.9,118.3 L270.3,116.8 L273.7,115.4 L277.2,114.0 L280.6,112.6 L284.0,111.1 L287.5,110.4 L290.9,109.7 L294.4,109.0 L297.8,108.3 L301.2,107.6 L304.7,106.8 L308.1,106.1 L311.6,105.4 L315.0,104.7 L318.4,104.0 L321.9,103.3 L325.3,102.6 L328.7,101.8 L332.2,101.1 L335.6,100.4 L339.1,99.7 L342.5,99.0 L345.9,98.3 L349.4,97.5 L352.8,96.8 L356.3,96.1 L359.7,95.4 L363.1,94.7 L366.6,94.0 L370.0,93.3 L373.4,92.5 L376.9,91.8 L380.3,91.1 L383.8,90.4 L387.2,89.7 L390.6,89.0 L394.1,88.3 L397.5,87.9 L400.9,87.5 L404.4,87.2 L407.8,86.8 L411.3,86.5 L414.7,86.1 L418.1,85.8 L421.6,85.4 L425.0,85.0 L428.5,84.7 L431.9,84.3 L435.3,84.0 L438.8,83.6 L442.2,83.3 L445.6,82.9 L449.1,82.5 L452.5,82.2 L456.0,81.8 L459.4,81.5 L462.8,81.1 L466.3,80.8 L469.7,80.4 L473.2,80.0 L476.6,79.7 L480.0,79.3 L483.5,79.0 L486.9,78.6 L490.3,78.2 L493.8,77.9 L497.2,77.5 L500.7,77.2 L504.1,76.8 L507.5,76.6 L511.0,76.5 L514.4,76.3 L517.9,76.1 L521.3,75.9 L524.7,75.7 L528.2,75.6 L531.6,75.4 L535.0,75.2 L538.5,75.0 L541.9,74.9 L545.4,74.7 L548.8,74.5 L552.2,74.3 L555.7,74.1 L559.1,74.0 L562.5,73.8 L566.0,73.6 L569.4,73.4 L572.9,73.2 L576.3,73.1 L579.7,72.9 L583.2,72.7 L586.6,72.5 L590.1,72.4 L593.5,72.2 L596.9,72.0 L600.4,71.8 L603.8,71.6 L607.2,71.5 L610.7,71.3 L614.1,71.1" class="l2"/><text x="250.3" y="26.0" class="lab">factor 1.5 · cap after ~12 years</text><text x="567.7" y="23.0" class="lab" text-anchor="end">factor 1.0 · cap after ~36 years</text><text x="609.1" y="88.6" class="lab" text-anchor="end">factor 0.75 · cap never reached</text></svg>
+<figcaption><b>Figure 2.</b> Total supply, including the founder allocation, for three constant factors. With a lasting factor below about 0.95 the halving series converges below the cap, and issuance fades out instead of stopping at a date. The real factor changes from week to week, so the end date of issuance is not known in advance.</figcaption>
+</figure>
+
+<h2 id="s5"><span class="n">5</span>Mining</h2>
+<p>Half of every weekly mint goes to the BcusMining contract. Anyone can earn it with a computer and a Base address, without holding BCUS beforehand. The design follows the mineable-token pattern of EIP-918 [9] with two changes: the reward is paid by elapsed time rather than per solution, and difficulty retargets on a fixed solution count.</p>
+<h3><span class="n">5.1</span>Proof of work</h3>
+<p>A miner searches for a number <var>k</var> (the nonce) such that</p>
+<p class="eq">keccak256( <var>c</var> ‖ <var>a</var> ‖ <var>k</var> ) ≤ <var>T</var><span class="num">(4)</span></p>
+<p>where <var>c</var> is the current challenge, <var>a</var> the miner's own address and <var>T</var> the current target. Because the address is part of the hash, a solution seen in the mempool is worthless to anyone else. After each valid solution the challenge becomes the hash of the old challenge, the nonce and the previous block hash, so work cannot be computed ahead.</p>
+<h3><span class="n">5.2</span>Reward</h3>
+<p>With <var>P</var> the tokens held by the mining contract and Δ<var>t</var> the seconds since the previous solution, a valid solution earns</p>
+<p class="eq"><var>r</var> = <var>P</var> · min(Δ<var>t</var>, 2,400) / 604,800<span class="num">(5)</span></p>
+<p>At the intended pace of one solution every ten minutes this is 1/1,008 of the pool per solution, which pays out roughly one week's share per week. A miner who floods the contract with solutions seconds apart earns almost nothing for them, and after a long pause no one can sweep up the accumulated pool: one solution earns at most 40 minutes' worth.</p>
+<h3><span class="n">5.3</span>Difficulty</h3>
+<p>After every 144 solutions, about one day at the target pace, the target is rescaled so that solutions arrive every ten minutes on average:</p>
+<p class="eq"><var>T</var>′ = clamp( <var>T</var> · <var>t</var><sub>actual</sub> / (144 · 600 s) ,  <var>T</var>/4 ,  4<var>T</var> )<span class="num">(6)</span></p>
+<p>If fewer than 144 solutions arrive within four days, the target is adjusted early so that mining does not stall when miners leave. The target always stays between 2<sup>16</sup> and 2<sup>240</sup>. The easiest setting needs about 65,000 attempts, which an ordinary laptop finds in well under a second; difficulty then rises with participation.</p>
+<p>A reference miner for ordinary computers is published with the source code. It is honest to say that dedicated graphics hardware will outpace it as soon as anyone uses such hardware, as in every proof-of-work system.</p>
+
+<h2 id="s6"><span class="n">6</span>Staking</h2>
+<p>The other half of every mint goes to BcusStaking. Holders deposit BCUS and can withdraw at any time, without a lock-up. Each new amount is streamed evenly over seven days and shared among depositors in proportion to their deposit, using the reward-per-token accounting of the Synthetix staking contract [10]. A deposit made just before a payout therefore earns only the small part streamed while it was in.</p>
+<p>Tokens that stream while nobody has deposited anything are burned, by sending them to the address <code>0x000000000000000000000000000000000000dEaD</code>. Earlier designs kept them for the first depositor, who in practice would have been the founder. Burning removes that advantage.</p>
+<p>What a depositor receives depends on the emission, the factor and how much others have deposited. It is not fixed, not guaranteed and not a return promised by anyone. No staking page shows a percentage yield.</p>
+
+<h2 id="s7"><span class="n">7</span>Founder allocation</h2>
+<p>One million BCUS, 4.8 % of the cap, are minted once at deployment directly into the FounderLock contract, an OpenZeppelin VestingWallet [11]. They become available linearly over ten years from deployment: 100,000 BCUS per year, accrued by the second. Anyone can trigger a release, but the tokens always go to one fixed beneficiary address, which cannot be changed or renounced. There is no cliff, so the market never faces a single large unlock.</p>
+<p>There is no pre-sale, no private sale, no team or advisor allocation and no marketing reserve. In the first year the founder's release of 100,000 BCUS compares with about 1.3 million BCUS issued to miners and stakers.</p>
+
+<h2 id="s8"><span class="n">8</span>Control and trust</h2>
+<div class="wrap"><table>
+<thead><tr><th>Element</th><th>Who controls it</th></tr></thead>
+<tbody>
+<tr><td>Token, emission, mining, staking</td><td>Nobody. No owner, no upgrade function, no admin key. Parameters are fixed at deployment.</td></tr>
+<tr><td>Oracle signing key</td><td>The publisher. Can submit reports within the limits in section 3 and can retire the oracle. Cannot change any contract.</td></tr>
+<tr><td>Founder allocation</td><td>Released only by the FounderLock schedule to its fixed beneficiary.</td></tr>
+<tr><td>Deployment key</td><td>Used once. Holds no rights after deployment.</td></tr>
+<tr><td>Websites, oracle page, demo exchange</td><td>The publisher.</td></tr>
+</tbody></table></div>
+<p>The oracle key is the one remaining point of trust. Before mainnet it will move from the server to a hardware signing device, so that a compromised server cannot sign reports.</p>
+
+<h2 id="s9"><span class="n">9</span>Security analysis</h2>
+<div class="wrap"><table>
+<thead><tr><th>Threat</th><th>Effect and bound</th></tr></thead>
+<tbody>
+<tr><td>Oracle key stolen</td><td>False but plausible reports. Each report moves issuance by at most 5 %; reaching a limit takes ten weeks of visible, checkable reports. Retirement resets the factor to 1.0.</td></tr>
+<tr><td>CDC data delayed or wrong</td><td>No report or a rejected report; the factor stays where it is. Grossly wrong values fail the range and ratio checks.</td></tr>
+<tr><td>Front-running a mining solution</td><td>Not possible: the miner's address is part of the hash.</td></tr>
+<tr><td>Burst mining at launch or after a pause</td><td>Reward is paid by elapsed time and capped at 40 minutes per solution, so speed alone earns nothing extra.</td></tr>
+<tr><td>Hash power concentration</td><td>One large miner can win most of the mining share. It cannot affect staking, the oracle or the supply cap.</td></tr>
+<tr><td>Flash deposits in staking</td><td>Seven-day streaming means a short deposit earns only what streamed while it was in.</td></tr>
+<tr><td>Founder dumping</td><td>Bounded by the vesting schedule to 100,000 BCUS per year.</td></tr>
+<tr><td>Contract bug</td><td>Contracts cannot be patched. An independent audit is a condition for mainnet (section 16). The current test suite has 78 tests.</td></tr>
+</tbody></table></div>
+
+<h2 id="s10"><span class="n">10</span>Ethics of the design</h2>
+<p>Higher mortality lowers issuance. A fair critic will point out that this makes the token scarcer when more people die. The design does not intend death to be profitable, and it cannot cause or prevent a single death: the factor reads national totals after the fact, eight weeks late, and moves issuance by a few percent at most. The direction was chosen so that the ledger issues less in a year of loss, as a record does not celebrate. The project uses only published national totals and processes no data about any individual.</p>
+
+<h2 id="s11"><span class="n">11</span>Related work</h2>
+<p>Bitcoin [1] introduced proof of work and the halving schedule that Bloodcoin's issuance follows. Ethereum [2] made general contracts possible, and Base [3] provides the low-fee network BCUS runs on. Ampleforth [4] adjusts supply from an oracle, but its oracle reports its own market price, which ties supply to speculation; Bloodcoin's oracle reports a quantity outside any market. Chainlink [5] provides decentralised oracle networks; Bloodcoin currently uses a single signed oracle and states that limitation in section 8. 0xBitcoin and EIP-918 [9] showed that proof-of-work mining can run inside a token contract.</p>
+
+<h2 id="s12"><span class="n">12</span>The Bloodcoin chain</h2>
+<p>Before BCUS existed on Base, the project started its own proof-of-work blockchain with SHA-256 mining, a 30-second block time and an explorer at node.bloodcoin-us.com. That chain runs on a single node operated by the publisher, so whoever controls the majority of its computing power controls it. It is an experiment, separate from BCUS on Base, and its coins have no value. A demo exchange trades those coins against test dollars that cannot be paid in or out.</p>
+
+<h2 id="s13"><span class="n">13</span>Environmental impact</h2>
+<p>Base is a layer-2 network that settles on Ethereum, which uses proof of stake. The proof-of-work search for BCUS runs on the miners' own computers. Because the reward per week is fixed, the energy miners spend is limited by what the reward is worth to them; with little value it stays small. Before any public offer, the publisher will add the energy disclosure that EU and Swiss practice expects for consensus mechanisms [13].</p>
+
+<h2 id="s14"><span class="n">14</span>Risks</h2>
+<ul>
+<li><b>Total loss.</b> BCUS may never have a value, or may lose all of it.</li>
+<li><b>Software.</b> The contracts may contain errors that lead to loss. No independent audit has been completed.</li>
+<li><b>Oracle.</b> Issuance depends on one key and on CDC data. Misuse, outages or data changes affect issuance within the stated bounds.</li>
+<li><b>Mining concentration.</b> Specialised hardware can dominate mining.</li>
+<li><b>Liquidity.</b> There is no market and there may never be one. The publisher will not create one.</li>
+<li><b>Regulation.</b> Laws can change and may restrict the project, its use or the transfer of tokens.</li>
+<li><b>Reputation and access.</b> Because the project uses mortality data, banks, exchanges and platforms may refuse to work with it.</li>
+<li><b>Keys.</b> Lost private keys cannot be recovered by anyone.</li>
+<li><b>Tax.</b> Receiving or holding tokens can have tax consequences for the holder.</li>
+<li><b>Project.</b> The project is run by one person and can be delayed, changed or stopped.</li>
+</ul>
+
+<h2 id="s15"><span class="n">15</span>Legal notice and regulatory status</h2>
+<ul>
+<li><b>No offer.</b> This document is for information only. It is not an offer or solicitation to buy or sell any token, security or financial instrument in any jurisdiction, and it is not a prospectus or key information document under Swiss or any other law.</li>
+<li><b>No advice.</b> Nothing here is investment, legal or tax advice.</li>
+<li><b>Not available.</b> BCUS is not yet available for purchase. Tokens on test networks and balances on the demo exchange have no monetary value.</li>
+<li><b>No promise.</b> No one promises, and nobody is entitled to expect, any price, value, profit, interest or return.</li>
+<li><b>No claims.</b> BCUS gives the holder no claim against the publisher or anyone else: no repayment, dividend, interest, profit share, vote or redemption.</li>
+<li><b>Excluded persons.</b> Bloodcoin is not offered to persons who are citizens or residents of, or located in, the United States, and it is not offered to the public in the European Union.</li>
+<li><b>Not legal tender.</b> BCUS is not legal tender and is not backed by any state, bank or asset.</li>
+<li><b>Forward-looking statements.</b> Plans in this document can change or be abandoned. They are not commitments.</li>
+<li><b>Software as is.</b> The source code is open under the MIT licence and provided without warranty.</li>
+<li><b>Applicable law.</b> This document and the websites are subject to Swiss law.</li>
+</ul>
+<p>The publisher is resident in Switzerland. Under the practice of the Swiss Financial Market Supervisory Authority, tokens are classified by function as payment, utility or asset tokens [12]. BCUS grants no claim against anyone, which points toward a payment token. Public issuance through mining and the staking mechanism are part of an ongoing review by a Swiss law firm, together with obligations under the Anti-Money Laundering Act. Until that review is complete, the publisher sells nothing and opens no trading pool. This document is not a crypto-asset white paper under the EU Markets in Crypto-Assets Regulation [13], because no offer to the public in the EU is made.</p>
+
+<h2 id="s16"><span class="n">16</span>Conditions before mainnet</h2>
+<p>BCUS will be deployed on Base mainnet only when all of the following are met. There is no date.</p>
+<ol>
+<li>The legal review in section 15 is complete and its result is followed.</li>
+<li>An independent security audit of the contracts is complete and its findings are fixed.</li>
+<li>The oracle key is held on a hardware signing device, not on a server.</li>
+<li>Several weekly oracle reports and a public mining test have run correctly on the test network.</li>
+<li>All public texts are checked so that none implies a value, yield or investment.</li>
+<li>The exclusion of persons in the United States is in place.</li>
+</ol>
+
+<h2 id="s17"><span class="n">17</span>Deployments</h2>
+<p>Base Sepolia test network, chain ID 84532, deployed 18 October 2026. All contracts are verified on Basescan. Tokens on this network have no value.</p>
+<div class="wrap"><table>
+<thead><tr><th>Contract</th><th>Address</th></tr></thead>
+<tbody>
+<tr><td>BloodcoinToken</td><td><a href="https://sepolia.basescan.org/address/0x3B6285240d594631FD282BDE7B7B4BB31ea468AF"><code>0x3B6285240d594631FD282BDE7B7B4BB31ea468AF</code></a></td></tr>
+<tr><td>MortalityEmission</td><td><a href="https://sepolia.basescan.org/address/0xbD0BCc11F904303B0B1fB4860b649Fc5EAd4a42b"><code>0xbD0BCc11F904303B0B1fB4860b649Fc5EAd4a42b</code></a></td></tr>
+<tr><td>SignedMortalityOracle</td><td><a href="https://sepolia.basescan.org/address/0x6883Cba0F7daD8a4A998b346bF35d971aF0a8E19"><code>0x6883Cba0F7daD8a4A998b346bF35d971aF0a8E19</code></a></td></tr>
+<tr><td>BcusMining</td><td><a href="https://sepolia.basescan.org/address/0x35b975e63723B9e228f76316657f52242fC072CC"><code>0x35b975e63723B9e228f76316657f52242fC072CC</code></a></td></tr>
+<tr><td>BcusStaking</td><td><a href="https://sepolia.basescan.org/address/0xCaa96cCf88811B0fbE4C01CAb613D1A2D609Ef22"><code>0xCaa96cCf88811B0fbE4C01CAb613D1A2D609Ef22</code></a></td></tr>
+<tr><td>FounderLock</td><td><a href="https://sepolia.basescan.org/address/0x5E46849a352151185bFB6299607875F7d65122E6"><code>0x5E46849a352151185bFB6299607875F7d65122E6</code></a></td></tr>
+</tbody></table></div>
+<p>No BCUS exists on Base mainnet.</p>
+
+<h2 id="s18"><span class="n">18</span>Publisher, contact and data protection</h2>
+<p>Michel Wagner, Lyss, Switzerland. Email: contact@bloodcoin-us.com. Full postal address: see the <a href="https://bloodcoin-us.com/legal.html">legal notice</a>.</p>
+<p>Website <a href="https://bloodcoin-us.com">bloodcoin-us.com</a> · Oracle reports <a href="https://bloodcoin-us.com/oracle">bloodcoin-us.com/oracle</a> · Explorer <a href="https://node.bloodcoin-us.com">node.bloodcoin-us.com</a> · Source code <a href="https://github.com/Wagnermichel88/Bloodcoin">github.com/Wagnermichel88/Bloodcoin</a> (MIT licence)</p>
+<p class="small">The websites process personal data only where needed: email address and password hash for demo exchange accounts, and an email address for the newsletter if someone signs up. Data is stored on the publisher's own server at Hetzner Online in Germany and is not sold or used for advertising. Cloudflare provides DNS, email forwarding and, for the exchange, network protection, and may process connection data in the USA. The websites use no tracking. Details are in the privacy policy on the legal notice page.</p>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li>S. Nakamoto, “Bitcoin: A Peer-to-Peer Electronic Cash System”, 2008.</li>
+<li>V. Buterin, “Ethereum: A Next-Generation Smart Contract and Decentralized Application Platform”, 2014.</li>
+<li>Base, “Base documentation”, docs.base.org.</li>
+<li>E. Kuo, B. Iles, M. Rincon Cruz, “Ampleforth: A New Synthetic Commodity”, 2019.</li>
+<li>L. Breidenbach et al., “Chainlink 2.0: Next Steps in the Evolution of Decentralized Oracle Networks”, 2021.</li>
+<li>F. Vogelsteller, V. Buterin, “EIP-20: Token Standard”, 2015.</li>
+<li>R. Bloemen, L. Logvinov, J. Evans, “EIP-712: Typed structured data hashing and signing”, 2017.</li>
+<li>Centers for Disease Control and Prevention, weekly provisional death counts, data.cdc.gov (dataset r8kw-7aab).</li>
+<li>J. Brinkman et al., “EIP-918: Mineable Token Standard”, 2018.</li>
+<li>Synthetix, “StakingRewards” contract, 2019.</li>
+<li>OpenZeppelin, “VestingWallet”, OpenZeppelin Contracts 5.x.</li>
+<li>FINMA, “Guidelines for enquiries regarding the regulatory framework for initial coin offerings (ICOs)”, 16 February 2018.</li>
+<li>Regulation (EU) 2023/1114 on markets in crypto-assets (MiCA), Official Journal of the EU L 150, 9 June 2023.</li>
+</ol>
+
+<h2 id="hist">Version history</h2>
+<div class="wrap"><table>
+<thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead>
+<tbody>
+<tr><td>1.0 draft</td><td>21 October 2026</td><td>Rewritten as a technical paper. Adds mining, burning of unstaked rewards, oracle reset on retirement, ten-year founder vesting, the eight-year halving period, formulas, a security analysis and the test-network deployment.</td></tr>
+<tr><td>0.9</td><td>17 October 2026</td><td>First public draft.</td></tr>
+</tbody></table></div>
+
+<footer>Bloodcoin is still in development. BCUS is not yet available for purchase. Not investment advice. Not offered to persons in the United States. This draft has not yet been reviewed by counsel.</footer>
+</article>
+
+</body>
+</html>

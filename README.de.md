@@ -8,18 +8,20 @@ Stand: 11.10.2026. Entwurf, **nicht auditiert, nicht deployt**. Vor echtem Geld:
 |---|---|
 | `src/BloodcoinToken.sol` | ERC-20 "Bloodcoin" (BCUS), 18 Nachkommastellen, harte Grenze 21 Mio. Kein Besitzer, keine Pause, keine Sperrliste. Nur der Emissions-Contract kann neue Coins erzeugen. |
 | `src/MortalityEmission.sol` | Gibt jede Woche neue BCUS aus: Halbierungsplan × Sterbe-Faktor (Übersterblichkeit, siehe `FAKTOR.md`). Deployt den Token selbst. Kein Besitzer, alles unveränderlich. |
-| `src/BcusStaking.sol` | Empfänger aller neuen BCUS. Wer BCUS hier sperrt, bekommt die Ausgabe anteilig, gleichmäßig über 7 Tage ausgezahlt. Ein- und Aussteigen jederzeit, kein Besitzer. |
+| `src/BcusStaking.sol` | Bekommt die Hälfte aller neuen BCUS. Wer BCUS hier sperrt, bekommt sie anteilig, gleichmäßig über 7 Tage ausgezahlt. Ein- und Aussteigen jederzeit, kein Besitzer. |
+| `src/BcusMining.sol` | Bekommt die andere Hälfte. Jeder kann BCUS schürfen (Proof of Work wie bei Bitcoin, keccak256): Lösung finden, `mine(nonce)` aufrufen. Die Belohnung richtet sich nach der Zeit seit der letzten Lösung (Anteil Zeit/Woche am Vorrat, höchstens 40 Minuten), nicht nach dem Tempo: Wer mit viel Rechenleistung Sekunden-Lösungen findet, bekommt fast nichts, und nach einer Pause gibt es keinen Topf. Schwierigkeit passt sich selbst an (Ziel: alle 10 Minuten eine Lösung). Kein Besitzer. |
+| `miner/mine.py` | Einfacher CPU-Miner (Python + `cast`). |
 | `src/CreMortalityOracle.sol` | Nimmt die CDC-Zahlen von Chainlink CRE entgegen (`onReport`). Nur der Chainlink-Forwarder darf melden, nach `pinWorkflow` nur noch genau ein Workflow. |
 | `oracle/cre-workflow/` | Der CRE-Workflow (TypeScript): jeden Montag fragen unabhängige Chainlink-Knoten data.cdc.gov ab, einigen sich und schreiben das Ergebnis ins Oracle. |
 | `script/Deploy.s.sol` | Deployt alles in einem Rutsch und verbindet die Teile. |
-| `src/FounderLock.sol` | Sperrvertrag für die Gründer-BCUS (OpenZeppelin-`VestingWallet` mit Dauer 0): 2 Jahre ab Deploy gesperrt, danach alles an den festen Empfänger. Kein Admin, Frist und Empfänger unveränderlich, frühe Abholung scheitert. |
-| `script/DeploySigned.s.sol` | Plan B: Oracle (signierter Melder), Staking, Sperrvertrag, Emission und Token in einem Durchlauf. Die Startmenge geht direkt in den Sperrvertrag. |
+| `src/FounderLock.sol` | Sperrvertrag für die Gründer-BCUS (OpenZeppelin-`VestingWallet`): über 10 Jahre ab Deploy linear frei, bei 1 Mio. also 100.000 BCUS pro Jahr, an den festen Empfänger. Kein Admin, Zeitplan und Empfänger unveränderlich. |
+| `script/DeploySigned.s.sol` | Plan B: Oracle (signierter Melder), Staking, Mining, Sperrvertrag, Emission und Token in einem Durchlauf. Die Startmenge geht direkt in den Sperrvertrag. (`Deploy.s.sol`, die Chainlink-Variante, deployt kein Mining.) |
 | `oracle/sim/` | Simulation der Faktor-Regel an echten US-Wochenzahlen 2015 bis 2024 (`python3 -I oracle/sim/simulate.py`). |
-| `test/` | 56 Contract-Tests (21 Token/Emission/Oracle, 10 Staking, 16 Plan-B-Melder, 9 Sperrvertrag). Der Workflow hat eigene Tests in `oracle/cre-workflow/`. |
+| `test/` | 78 Contract-Tests (21 Token/Emission/Oracle, 11 Staking, 16 Mining, 20 Plan-B-Melder, 9 Sperrvertrag, 1 Gründer-Szenario). Der Workflow hat eigene Tests in `oracle/cre-workflow/`. |
 
 ## Regeln, die im Code stehen
 
-- **Ausgabe:** 50.480,77 BCUS pro Woche in den ersten 208 Wochen (rund 4 Jahre), danach jeweils
+- **Ausgabe:** 25.240,38 BCUS pro Woche in den ersten 416 Wochen (rund 8 Jahre), danach jeweils
   halbiert. Bei Faktor 1,0 ergibt das zusammen 21 Mio.; zusammen mit der Startmenge wird die
   Grenze also vorher erreicht, dann endet die Ausgabe.
 - **Sterbe-Faktor:** Tote der letzten 4 CDC-Wochen gegen den Durchschnitt derselben 4 Wochen in
@@ -38,7 +40,10 @@ Stand: 11.10.2026. Entwurf, **nicht auditiert, nicht deployt**. Vor echtem Geld:
   7 Tage gestreamt (bewährtes Verfahren von Synthetix). Wer kurz vor einer Ausgabe mit viel Geld
   einsteigt und gleich wieder raus geht, bekommt so gut wie nichts (Test
   `testFlashStakerGetsAlmostNothing`). Läuft der Strom, während niemand gestakt hat, wird er
-  aufgehoben und bei der nächsten Ausgabe mitverteilt.
+  verbrannt (an `0x…dEaD`) und nicht aufgehoben. Früher sammelte sich dieser Teil für den ersten
+  Staker an. Weil beim Deploy alle Start-BCUS im FounderLock liegen und sonst niemand BCUS
+  hat, wäre das zwangsläufig der Gründer gewesen, mit Millionen BCUS
+  (`test/FounderScenario.t.sol`).
 
 ## Entscheidungen, die ich als Standard gesetzt habe
 
@@ -47,9 +52,9 @@ Stand: 11.10.2026. Entwurf, **nicht auditiert, nicht deployt**. Vor echtem Geld:
   Einsatz, es schützt nicht vor einem Großhalter. Ehrlicher Umgang: Startmenge in den
   Uniswap-Pool, nicht ins Staking, und das öffentlich sagen.
 - **Startmenge** (`INITIAL_MINT_BCUS`) ist ein Deploy-Parameter. Vorschlag: 1.000.000 BCUS (knapp 5 %).
-  Mit `DeploySigned.s.sol` (Plan B) geht sie direkt in `FounderLock` und ist 2 Jahre gesperrt;
-  danach kann sie nur `FOUNDER_BENEFICIARY` abholen (`release(token)`, auslösen darf jeder).
-  Für einen Uniswap-Pool steht sie in dieser Zeit nicht zur Verfügung.
+  Mit `DeploySigned.s.sol` (Plan B) geht sie direkt in `FounderLock` und wird über 10 Jahre
+  linear frei (100.000 BCUS pro Jahr); nur `FOUNDER_BENEFICIARY` bekommt sie (`release(token)`,
+  auslösen darf jeder). Für einen Uniswap-Pool steht jeweils nur der freie Teil zur Verfügung.
 - **18 Nachkommastellen** statt 8 wie auf der eigenen Chain, weil das jede Wallet erwartet.
 
 ## Warum CRE statt Chainlink Functions
@@ -85,7 +90,7 @@ Rechner aus und schickt das Ergebnis über Chainlinks *Simulations-Forwarder* an
    export CRE_FORWARDER=0x...
    export INITIAL_HOLDER=0x...
    export INITIAL_MINT_BCUS=1000000
-   forge script script/Deploy.s.sol --rpc-url https://base-sepolia-rpc.publicnode.com --broadcast --private-key $DEPLOYER_KEY
+   forge script script/Deploy.s.sol --rpc-url https://base-sepolia-rpc.publicnode.com --broadcast --account deployer
    ```
 3. `cre init` (TypeScript), die Dateien aus `oracle/cre-workflow/` in den Workflow-Ordner kopieren,
    in `config.staging.json` die Oracle-Adresse eintragen.

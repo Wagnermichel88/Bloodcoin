@@ -27,7 +27,8 @@ Token, Emission und Staking bleiben unverändert, nur der Oracle-Contract wird a
   gemeldet wird. Sie war ohnehin schwach. Ersetzt wird sie durch die Schrittgrenze in
   `MortalityEmission`: Eine einzelne Meldung bewegt den Faktor um höchstens 0,05.
 - `retire(signatur)` schaltet den Melder endgültig ab, etwa wenn der Schlüssel gestohlen wurde.
-  Die Emission läuft dann mit dem letzten Faktor weiter.
+  Dabei geht der Faktor auf 1,0 zurück (`MortalityEmission.resetFactor`), und die Emission läuft
+  ohne Sterbe-Anpassung weiter. Ein Dieb kann einen verschobenen Faktor so nicht festschreiben.
 
 ## Was er nicht verhindert
 
@@ -53,9 +54,12 @@ data.cdc.gov prüfen, und zehn Wochen sind genug Zeit, dass es jemandem auffäll
 4. Deployen mit `DeploySigned.s.sol`:
    ```bash
    export ORACLE_SIGNER=0x...        # Melder-Adresse aus Schritt 2
-   export FOUNDER_BENEFICIARY=0x...  # bekommt die Startmenge nach 2 Jahren aus dem FounderLock
+   export FOUNDER_BENEFICIARY=0x...  # bekommt die Startmenge über 10 Jahre aus dem FounderLock
    export INITIAL_MINT_BCUS=1000000
-   forge script script/DeploySigned.s.sol --rpc-url $BASE_RPC --broadcast --private-key $DEPLOYER_KEY
+   # Deployer-Schlüssel als Keystore oder Hardware-Wallet, nie als --private-key (landet sonst
+   # in der Shell-History und ist in der Prozessliste sichtbar):
+   cast wallet import deployer --interactive        # einmalig, oder --ledger / --trezor
+   forge script script/DeploySigned.s.sol --rpc-url $BASE_RPC --broadcast --account deployer
    ```
 5. Probelauf, dann echter Lauf:
    ```bash
@@ -69,7 +73,7 @@ data.cdc.gov prüfen, und zehn Wochen sind genug Zeit, dass es jemandem auffäll
 
 ## Getestet
 
-56 Contract-Tests grün (seit 16.10.2026 mit Sperrvertrag). Ende-zu-Ende auf einer lokalen Anvil-Chain (14.10.2026, neue Regel):
+62 Contract-Tests grün (18.10.2026: Verbrennen ohne Staker, Faktor-Reset beim Abschalten). Ende-zu-Ende auf einer lokalen Anvil-Chain (14.10.2026, neue Regel):
 Deploy, Meldung aus echten Wochenzahlen der Grippesaison 2017/18 (+3,5 % gegen die Vorjahre,
 Ziel und Faktor 973 im Contract), zweiter Lauf erkennt "schon gemeldet". Die Faktor-Formel in
 Python und JavaScript stimmt an 20.000 Zufallswerten überein, Solidity und JavaScript an 300.

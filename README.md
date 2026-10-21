@@ -16,8 +16,9 @@ Detailed documentation is in German: [README.de.md](README.de.md) (contracts, de
 | Contract | Role |
 |---|---|
 | `BloodcoinToken` | ERC-20 "Bloodcoin" (BCUS), 18 decimals, hard cap 21 million. No owner, no pause, no blacklist. Only the emission contract can mint. |
-| `MortalityEmission` | Mints a fixed weekly amount on a Bitcoin-like halving schedule (every 208 weeks), multiplied by a mortality factor between 0.5 and 1.5. No owner, all parameters immutable. |
-| `BcusStaking` | Receives all new BCUS and streams them to stakers pro rata over 7 days. |
+| `MortalityEmission` | Mints a fixed weekly amount on a Bitcoin-like halving schedule (every 416 weeks, about 8 years), multiplied by a mortality factor between 0.5 and 1.5. No owner, all parameters immutable. |
+| `BcusStaking` | Receives half of all new BCUS and streams them to stakers pro rata over 7 days. What streams while nobody stakes is burned, not saved for the first staker. |
+| `BcusMining` | Receives the other half. Anyone can mine BCUS with proof of work (keccak256, like Bitcoin): find a nonce, call `mine(nonce)`. The reward follows the time since the last solution (that share of a week, capped at 40 minutes), not hashing speed, so fast solutions earn almost nothing and a long pause leaves no pot to grab. Difficulty adjusts itself towards one solution every 10 minutes. No owner. A simple CPU miner is in `miner/mine.py`. |
 | `SignedMortalityOracle` | Accepts mortality reports signed by one fixed key (EIP-712). |
 | `CreMortalityOracle` | Alternative: accepts reports from a Chainlink CRE workflow (`oracle/cre-workflow`). |
 
@@ -37,11 +38,13 @@ the contract only rejects absurd values. The safeguards are:
 - Anyone can check a report against the CDC, either with the button on the public page (it
   queries data.cdc.gov from the visitor's browser) or with `python3 oracle/signed/report.py verify <report>.json`.
 - The signing key is immutable and cannot be swapped silently. `retire()` can only switch the
-  oracle off for good, after which emission continues at the last factor.
+  oracle off for good. It resets the factor to 1.0, so a stolen key cannot push the factor to an
+  extreme and then lock it there.
 - The founder's initial BCUS do not go to the founder's address. `script/DeploySigned.s.sol` mints
-  them into `src/FounderLock.sol` (OpenZeppelin `VestingWallet` used as a timelock): locked for 2 years
-  from deployment, then released in full to one fixed address. No admin, no early release, and
-  neither the date nor the recipient can be changed.
+  them into `src/FounderLock.sol` (OpenZeppelin `VestingWallet`): they vest linearly over 10 years
+  from deployment, 100,000 BCUS per year for an initial mint of 1M, to one fixed address. No
+  admin, no cliff that the market has to fear, and neither the schedule nor the recipient can be
+  changed.
 
 ## Build and test
 

@@ -23,7 +23,7 @@ contract FounderLockTest is Test {
         SignedMortalityOracle o = new SignedMortalityOracle(vm.addr(0xB10D));
         BcusStaking st = new BcusStaking();
         lock = new FounderLock(FOUNDER);
-        MortalityEmission e = new MortalityEmission(address(o), address(st), address(lock), MINT);
+        MortalityEmission e = new MortalityEmission(address(o), address(st), address(0), address(lock), MINT);
         o.bind(address(e));
         st.bind(address(e));
         token = e.token();
@@ -35,50 +35,53 @@ contract FounderLockTest is Test {
         assertEq(lock.owner(), FOUNDER);
     }
 
-    function testUnlockIsTwoYearsAfterDeploy() public view {
-        assertEq(lock.start(), START + 730 days);
-        assertEq(lock.duration(), 0);
-        assertEq(lock.end(), START + 730 days);
+    function testVestsOverTenYearsFromDeploy() public view {
+        assertEq(lock.start(), START);
+        assertEq(lock.duration(), 3650 days);
+        assertEq(lock.end(), START + 3650 days);
     }
 
-    function testEarlyReleaseFails() public {
-        vm.prank(FOUNDER);
-        vm.expectRevert(abi.encodeWithSelector(FounderLock.StillLocked.selector, START + 730 days));
-        lock.release(address(token));
-    }
-
-    function testReleaseOneSecondBeforeEndFails() public {
-        vm.warp(START + 730 days - 1);
-        vm.prank(FOUNDER);
-        vm.expectRevert(abi.encodeWithSelector(FounderLock.StillLocked.selector, START + 730 days));
-        lock.release(address(token));
+    function testNothingAtStart() public {
         assertEq(lock.releasable(address(token)), 0);
-        assertEq(token.balanceOf(address(lock)), MINT);
+        lock.release(address(token));
+        assertEq(token.balanceOf(FOUNDER), 0);
     }
 
-    function testReleaseAfterTwoYears() public {
-        vm.warp(START + 730 days);
-        assertEq(lock.releasable(address(token)), MINT);
-        vm.prank(FOUNDER);
-        lock.release(address(token));
-        assertEq(token.balanceOf(FOUNDER), MINT);
+    function testHundredThousandPerYear() public {
+        for (uint256 y = 1; y <= 10; y++) {
+            vm.warp(START + y * 365 days);
+            lock.release(address(token));
+            assertEq(token.balanceOf(FOUNDER), y * 100_000e18);
+        }
         assertEq(token.balanceOf(address(lock)), 0);
     }
 
-    function testStrangerCanTriggerButCoinsGoToFounder() public {
-        vm.warp(START + 731 days);
-        vm.prank(STRANGER);
+    function testLinearWithinTheYear() public {
+        vm.warp(START + 365 days / 2);
+        assertEq(lock.releasable(address(token)), 50_000e18);
+    }
+
+    function testNothingMoreAfterEnd() public {
+        vm.warp(START + 20 * 365 days);
         lock.release(address(token));
         assertEq(token.balanceOf(FOUNDER), MINT);
+        assertEq(lock.releasable(address(token)), 0);
+    }
+
+    function testStrangerCanTriggerButCoinsGoToFounder() public {
+        vm.warp(START + 365 days);
+        vm.prank(STRANGER);
+        lock.release(address(token));
+        assertEq(token.balanceOf(FOUNDER), 100_000e18);
         assertEq(token.balanceOf(STRANGER), 0);
     }
 
-    function testSecondReleasePaysNothingMore() public {
-        vm.warp(START + 730 days);
+    function testSecondReleaseSameTimePaysNothingMore() public {
+        vm.warp(START + 365 days);
         lock.release(address(token));
         lock.release(address(token));
-        assertEq(token.balanceOf(FOUNDER), MINT);
-        assertEq(lock.released(address(token)), MINT);
+        assertEq(token.balanceOf(FOUNDER), 100_000e18);
+        assertEq(lock.released(address(token)), 100_000e18);
     }
 
     function testBeneficiaryCannotBeChanged() public {
@@ -89,10 +92,5 @@ contract FounderLockTest is Test {
         vm.expectRevert(FounderLock.BeneficiaryFixed.selector);
         lock.renounceOwnership();
         assertEq(lock.owner(), FOUNDER);
-    }
-
-    function testEarlyEthReleaseFails() public {
-        vm.expectRevert(abi.encodeWithSelector(FounderLock.StillLocked.selector, START + 730 days));
-        lock.release();
     }
 }

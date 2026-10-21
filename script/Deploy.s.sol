@@ -25,7 +25,7 @@ contract Deploy {
         vm.startBroadcast();
         CreMortalityOracle o = new CreMortalityOracle(forwarder);
         BcusStaking st = new BcusStaking();
-        MortalityEmission e = new MortalityEmission(address(o), address(st), holder, initialMint);
+        MortalityEmission e = new MortalityEmission(address(o), address(st), address(0), holder, initialMint);
         o.bind(address(e));
         st.bind(address(e));
         vm.stopBroadcast();
