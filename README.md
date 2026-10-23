@@ -16,7 +16,7 @@ Detailed documentation is in German: [README.de.md](README.de.md) (contracts, de
 | Contract | Role |
 |---|---|
 | `BloodcoinToken` | ERC-20 "Bloodcoin" (BCUS), 18 decimals, hard cap 21 million. No owner, no pause, no blacklist. Only the emission contract can mint. |
-| `MortalityEmission` | Mints a fixed weekly amount on a Bitcoin-like halving schedule (every 416 weeks, about 8 years), multiplied by a mortality factor between 0.5 and 1.5. No owner, all parameters immutable. |
+| `MortalityEmission` | Mints a fixed weekly amount on a Bitcoin-like halving schedule (every 416 weeks, about 8 years), multiplied by a mortality factor between 0.5 and 1.0. No owner, all parameters immutable. |
 | `BcusStaking` | Receives half of all new BCUS and streams them to stakers pro rata over 7 days. What streams while nobody stakes is burned, not saved for the first staker. |
 | `BcusMining` | Receives the other half. Anyone can mine BCUS with proof of work (keccak256, like Bitcoin): find a nonce, call `mine(nonce)`. The reward follows the time since the last solution (that share of a week, capped at 40 minutes), not hashing speed, so fast solutions earn almost nothing and a long pause leaves no pot to grab. Difficulty adjusts itself towards one solution every 10 minutes. No owner. A simple CPU miner is in `miner/mine.py`. |
 | `SignedMortalityOracle` | Accepts mortality reports signed by one fixed key (EIP-712). |
@@ -24,7 +24,7 @@ Detailed documentation is in German: [README.de.md](README.de.md) (contracts, de
 
 **The factor:** deaths in the 4 weeks up to the report week are compared with the same 4 weeks
 in each of the previous 3 years. Within ±3 % the target is 1.0; each further percent of excess
-deaths lowers it by 0.05 (fewer deaths raise it), limited to 0.5–1.5. The factor in use moves at
+deaths lowers it by 0.05, down to 0.5. Fewer deaths than usual never raise it above 1.0. The factor in use moves at
 most 0.05 per weekly report. Only weeks at least 8 weeks old are used.
 
 ## Trust model, stated plainly

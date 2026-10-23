@@ -65,13 +65,13 @@ contract BloodcoinTest is Test {
         assertEq(em.targetFor(232_800, 240_000), 1000);   // -3 %
         assertEq(em.targetFor(247_440, 240_000), 995);    // +3,1 %
         assertEq(em.targetFor(252_000, 240_000), 900);    // +5 % -> 2 % über der Schwelle -> -10 %
-        assertEq(em.targetFor(228_000, 240_000), 1100);   // -5 %
+        assertEq(em.targetFor(228_000, 240_000), 1000);   // -5 %: keine Extra-Coins
         assertEq(em.targetFor(264_000, 240_000), 650);    // +10 %
         assertEq(em.targetFor(276_000, 240_000), 500);    // +15 %: Untergrenze
-        assertEq(em.targetFor(180_000, 240_000), 1500);   // -25 %: Obergrenze
+        assertEq(em.targetFor(180_000, 240_000), 1000);   // -25 %: keine Extra-Coins
         assertEq(em.targetFor(271_200, 240_000), 500);    // +13 %: Untergrenze erreicht
         assertEq(em.targetFor(271_000, 240_000), 504);
-        assertEq(em.targetFor(1, 9_999_999), 1500);
+        assertEq(em.targetFor(1, 9_999_999), 1000);
         assertEq(em.targetFor(9_999_999, 1), 500);
     }
 
@@ -97,6 +97,24 @@ contract BloodcoinTest is Test {
         deliver(SAT + 11 weeks, 240_000, 240_000);
         assertEq(em.factorMilli(), 550);
         assertEq(em.targetMilli(), 1000);
+    }
+
+    function testLowMortalityNeverRaisesFactor() public {
+        // Nach einer Pandemie sieht ein normales Jahr wie Untersterblichkeit aus (Echo), und eine
+        // Untererfassung der CDC ebenso. Beides darf nicht zu mehr Coins führen.
+        vm.warp(START + 20 weeks);
+        for (uint256 i = 0; i < 12; ++i) {
+            deliver(SAT + i * 1 weeks, 180_000, 240_000);   // -25 %
+            assertEq(em.factorMilli(), 1000);
+            assertEq(em.targetMilli(), 1000);
+        }
+        // Von unten kommend läuft der Faktor wieder auf 1,0, nicht darüber.
+        deliver(SAT + 12 weeks, 276_000, 240_000);
+        assertEq(em.factorMilli(), 950);
+        deliver(SAT + 13 weeks, 180_000, 240_000);
+        assertEq(em.factorMilli(), 1000);
+        deliver(SAT + 14 weeks, 180_000, 240_000);
+        assertEq(em.factorMilli(), 1000);
     }
 
     // ---------------------------------------------------------------- Ausgabe

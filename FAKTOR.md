@@ -26,8 +26,9 @@ Zufallsgenerator mit Sterbe-Etikett.
    Wochenrauschen fallen weg.
 2. **Toleranz:** Bis ±3 % Abweichung bleibt das Ziel bei 1,0. Darin steckt normales Rauschen und
    der Alterungstrend der Bevölkerung (jedes Jahr etwas mehr Tote).
-3. **Kurve:** Jedes Prozent darüber kostet 5 % der neuen Coins, jedes Prozent darunter bringt 5 %
-   mehr. Grenzen bleiben 0,5 und 1,5; die Untergrenze ist ab 13 % Übersterblichkeit erreicht.
+3. **Kurve:** Jedes Prozent darüber kostet 5 % der neuen Coins, die Untergrenze 0,5 ist ab 13 %
+   Übersterblichkeit erreicht. Weniger Tote als üblich bringen nichts extra, das Ziel bleibt 1,0
+   (bis 23.10.2026 waren es bis zu 1,5, siehe unten "Warum kein Bonus").
 4. **Trägheit:** Der Faktor läuft pro Meldung höchstens 0,05 auf das Ziel zu. Von 1,0 auf 0,5
    braucht es zehn Wochen. Das glättet zusätzlich und begrenzt den Schaden einer falschen
    Meldung (egal ob Chainlink-Fehler oder gestohlener Plan-B-Schlüssel) auf 5 %.
@@ -90,3 +91,18 @@ anhielt. Genau so soll sich ein Sterbe-Index verhalten.
 - Plan B Ende-zu-Ende auf lokaler Anvil-Chain: Deploy, Meldung, Faktor im Contract wie berechnet.
 - **Nicht getestet:** echter Abruf bei data.cdc.gov (aus der Testumgebung gesperrt). Die CDC-Reihe
   r8kw-7aab beginnt 2020; für Meldungen ab Herbst 2026 reichen die Vorjahre 2023 bis 2025.
+
+## Warum kein Bonus bei weniger Toten (23.10.2026)
+
+Bis zum 23.10.2026 brachte jedes Prozent Untersterblichkeit 5 % mehr Coins, bis 1,5. Ein
+Stresstest mit den echten Covid-Jahren zeigte, dass dieser Bonus fast nur aus zwei Fehlern kommt:
+
+- **Echo:** Der Vergleichswert sind die 3 Vorjahre. 2023 sind das 2020 bis 2022, also die
+  Covid-Jahre. Ein normales Jahr sieht dagegen wie 10 bis 15 % Untersterblichkeit aus. Mit der
+  alten Regel hätte die Ausgabe 2023 um 25 % und 2024 um 22 % über dem Plan gelegen.
+- **Untererfassung:** Meldet die CDC zu wenige Tote (fehlende Staaten, Verzug), stieg der Faktor.
+  Ein Datenfehler hätte also mehr Coins erzeugt.
+
+Seitdem bleibt das Ziel bei weniger Toten auf 1,0. Tote können neue Coins nur verringern, nie
+vermehren. Die Ausgabe liegt damit nie über dem Halbierungsplan. Rechnung:
+`/mnt/project-files/orakel-extrem/` (Projektablage, `extrem_sim.py`, `alternativen_sim.py`).

@@ -13,7 +13,10 @@ import {BloodcoinToken} from "./BloodcoinToken.sol";
 ///         Durchschnitt derselben 4 Wochen in den 3 Vorjahren (Übersterblichkeit). Liegt die
 ///         Abweichung innerhalb von 3 %, bleibt das Ziel bei 1,0 (normales Rauschen und
 ///         Alterungstrend). Darüber kostet jedes weitere Prozent Übersterblichkeit 5 % der neuen
-///         Coins, jedes Prozent Untersterblichkeit bringt 5 % mehr, begrenzt auf 0,5 bis 1,5.
+///         Coins, begrenzt auf 0,5. Weniger Tote als üblich bringen keine Extra-Coins: Das Ziel
+///         bleibt dann bei 1,0. Sonst würde jede Pandemie drei Jahre später mehr Coins ausgeben,
+///         weil sie dann im Vergleichswert steckt (Echo), und eine Untererfassung der CDC würde
+///         die Ausgabe erhöhen.
 ///         Der tatsächliche Faktor läuft pro Meldung höchstens 0,05 auf dieses Ziel zu. Eine
 ///         einzelne (auch falsche) Meldung verschiebt die Ausgabe also um höchstens 5 %.
 ///         Die Rechnung steht gleich in oracle/cre-workflow/cdc.js und oracle/signed/report.py.
@@ -38,7 +41,6 @@ contract MortalityEmission {
     uint256 public constant SENSITIVITY = 5;        // jedes Prozent darüber -> 5 % weniger neue Coins
     uint256 public constant MAX_STEP = 50;          // Promille pro Meldung
     uint256 public constant FACTOR_MIN = 500;       // Promille
-    uint256 public constant FACTOR_MAX = 1500;
     uint256 public constant MAX_DEATHS = 10_000_000;
     uint256 public constant MINING_SHARE_BP = 5000; // 50 % jeder Ausgabe an das Mining
 
@@ -80,13 +82,11 @@ contract MortalityEmission {
     /// @param recentDeaths Todesfälle der 4 Wochen bis einschließlich der gemeldeten Woche
     /// @param baselineDeaths Durchschnitt derselben 4 Wochen in den 3 Vorjahren
     function targetFor(uint256 recentDeaths, uint256 baselineDeaths) public pure returns (uint256) {
-        bool more = recentDeaths > baselineDeaths;
-        uint256 diff = more ? recentDeaths - baselineDeaths : baselineDeaths - recentDeaths;
-        uint256 bp = (diff * 10_000 + baselineDeaths / 2) / baselineDeaths;
+        if (recentDeaths <= baselineDeaths) return 1000;  // Untersterblichkeit: keine Extra-Coins
+        uint256 bp = ((recentDeaths - baselineDeaths) * 10_000 + baselineDeaths / 2) / baselineDeaths;
         if (bp <= DEAD_ZONE_BP) return 1000;
         uint256 adj = SENSITIVITY * (bp - DEAD_ZONE_BP) / 10;
-        if (more) return adj >= 1000 - FACTOR_MIN ? FACTOR_MIN : 1000 - adj;
-        return adj >= FACTOR_MAX - 1000 ? FACTOR_MAX : 1000 + adj;
+        return adj >= 1000 - FACTOR_MIN ? FACTOR_MIN : 1000 - adj;
     }
 
     /// @notice Neuer Faktor: höchstens MAX_STEP vom alten in Richtung Ziel.

@@ -67,10 +67,8 @@ export function pickWindow(data, today) {
 
 /** Ziel-Faktor in Promille, exakt wie MortalityEmission.targetFor (nur zur Anzeige im Log). */
 export function targetMilli(recent, baseline) {
-  const more = recent > baseline;
-  const diff = more ? recent - baseline : baseline - recent;
-  const bp = Math.floor((diff * 10000 + Math.floor(baseline / 2)) / baseline);
+  if (recent <= baseline) return 1000; // weniger Tote: keine Extra-Coins
+  const bp = Math.floor(((recent - baseline) * 10000 + Math.floor(baseline / 2)) / baseline);
   if (bp <= 300) return 1000;
-  const adj = Math.floor((5 * (bp - 300)) / 10);
-  return more ? Math.max(500, 1000 - adj) : Math.min(1500, 1000 + adj);
+  return Math.max(500, 1000 - Math.floor((5 * (bp - 300)) / 10));
 }

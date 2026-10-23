@@ -17,7 +17,7 @@ Stand: 11.10.2026. Entwurf, **nicht auditiert, nicht deployt**. Vor echtem Geld:
 | `src/FounderLock.sol` | Sperrvertrag für die Gründer-BCUS (OpenZeppelin-`VestingWallet`): über 10 Jahre ab Deploy linear frei, bei 1 Mio. also 100.000 BCUS pro Jahr, an den festen Empfänger. Kein Admin, Zeitplan und Empfänger unveränderlich. |
 | `script/DeploySigned.s.sol` | Plan B: Oracle (signierter Melder), Staking, Mining, Sperrvertrag, Emission und Token in einem Durchlauf. Die Startmenge geht direkt in den Sperrvertrag. (`Deploy.s.sol`, die Chainlink-Variante, deployt kein Mining.) |
 | `oracle/sim/` | Simulation der Faktor-Regel an echten US-Wochenzahlen 2015 bis 2024 (`python3 -I oracle/sim/simulate.py`). |
-| `test/` | 78 Contract-Tests (21 Token/Emission/Oracle, 11 Staking, 16 Mining, 20 Plan-B-Melder, 9 Sperrvertrag, 1 Gründer-Szenario). Der Workflow hat eigene Tests in `oracle/cre-workflow/`. |
+| `test/` | 79 Contract-Tests (22 Token/Emission/Oracle, 11 Staking, 16 Mining, 20 Plan-B-Melder, 9 Sperrvertrag, 1 Gründer-Szenario). Der Workflow hat eigene Tests in `oracle/cre-workflow/`. |
 
 ## Regeln, die im Code stehen
 
@@ -26,7 +26,7 @@ Stand: 11.10.2026. Entwurf, **nicht auditiert, nicht deployt**. Vor echtem Geld:
   Grenze also vorher erreicht, dann endet die Ausgabe.
 - **Sterbe-Faktor:** Tote der letzten 4 CDC-Wochen gegen den Durchschnitt derselben 4 Wochen in
   den 3 Vorjahren. Bis ±3 % Abweichung bleibt das Ziel 1,0; jedes Prozent darüber kostet 5 % der
-  neuen Coins (jedes Prozent darunter bringt 5 % mehr), begrenzt auf 0,5 bis 1,5. Der Faktor läuft
+  neuen Coins, bis hinunter auf 0,5. Weniger Tote als üblich bringen keine Extra-Coins (höchstens 1,0). Der Faktor läuft
   pro Meldung höchstens 0,05 auf das Ziel zu. Begründung und Simulation: `FAKTOR.md`. Gilt ab der
   Meldung bis zur nächsten. Jede Woche bekommt den Faktor, der an ihrem Ende galt; wann jemand
   abholt, ändert nichts an der Menge.

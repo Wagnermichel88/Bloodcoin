@@ -84,13 +84,14 @@ def pick_window(rows: list, today: dt.date) -> tuple[int, int, int]:
 
 
 def target_milli(recent: int, baseline: int) -> int:
-    """Ziel-Faktor in Promille, gleiche Formel wie MortalityEmission.targetFor."""
-    diff = abs(recent - baseline)
-    bp = (diff * 10_000 + baseline // 2) // baseline
+    """Ziel-Faktor in Promille, gleiche Formel wie MortalityEmission.targetFor.
+    Weniger Tote als üblich ergeben 1000, nie mehr."""
+    if recent <= baseline:
+        return 1000
+    bp = ((recent - baseline) * 10_000 + baseline // 2) // baseline
     if bp <= 300:
         return 1000
-    adj = 5 * (bp - 300) // 10
-    return max(500, 1000 - adj) if recent > baseline else min(1500, 1000 + adj)
+    return max(500, 1000 - 5 * (bp - 300) // 10)
 
 
 def step_toward(current: int, target: int) -> int:

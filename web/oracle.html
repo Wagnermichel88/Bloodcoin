@@ -120,7 +120,7 @@
       4 calendar weeks in each of the previous 3 years, averaged. Only weeks at least 8 weeks old are used, because
       CDC counts are incomplete before that.</p>
     <p>Within ±3 % the target factor is 1.0. Beyond that, each further percent of excess deaths lowers it by 0.05
-      (fewer deaths raise it), limited to 0.5 to 1.5. The factor used for emission moves at most 0.05 per report
+      down to 0.5. Fewer deaths than usual never raise it above 1.0. The factor used for emission moves at most 0.05 per report
       toward the target.</p>
     <p>Source: CDC dataset <a href="https://data.cdc.gov/d/r8kw-7aab" target="_blank" rel="noopener">r8kw-7aab</a>
       (Provisional COVID-19 Death Counts by Week, total deaths, United States). The CDC still revises recent weeks,
@@ -149,11 +149,10 @@ const isoOf = (day) => new Date(day * DAY).toISOString().slice(0, 10);
 
 // Gleiche Regel wie report.py / MortalityEmission.targetFor.
 function targetMilli(recent, baseline) {
-  const diff = Math.abs(recent - baseline);
-  const bp = Math.floor((diff * 10000 + Math.floor(baseline / 2)) / baseline);
+  if (recent <= baseline) return 1000;
+  const bp = Math.floor(((recent - baseline) * 10000 + Math.floor(baseline / 2)) / baseline);
   if (bp <= 300) return 1000;
-  const adj = Math.floor(5 * (bp - 300) / 10);
-  return recent > baseline ? Math.max(500, 1000 - adj) : Math.min(1500, 1000 + adj);
+  return Math.max(500, 1000 - Math.floor(5 * (bp - 300) / 10));
 }
 
 // Die 4 Wochen bis `day`, dann dieselben 4 Wochen in jedem der 3 Vorjahre (je 364 Tage zurück).

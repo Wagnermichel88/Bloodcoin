@@ -37,6 +37,8 @@ Faktor nur um 0,05, aber zehn Wochen hintereinander erfundene 15 % Übersterblic
 auf 0,5. Schutz ist hier nur die Öffentlichkeit: Jede Meldung liegt mit allen 16 verwendeten
 CDC-Wochen und der Signatur offen, jeder kann sie mit `report.py verify` oder direkt bei
 data.cdc.gov prüfen, und zehn Wochen sind genug Zeit, dass es jemandem auffällt.
+Damit das nicht vom Zufall abhängt, prüft `oracle/watch/check.py` jeden Tag auf GitHub jede
+Meldung gegen die CDC und schlägt bei Abweichung Alarm (siehe `oracle/watch/README.md`).
 
 ## Server einrichten (erst wenn Plan B gewählt ist)
 
